@@ -9,6 +9,7 @@ Thank you for helping improve `correios-logistica-reversa`.
 | [CONSTITUTION.md](./CONSTITUTION.md) | Non-negotiable rules (secrets, SOLID, tests, CI) |
 | [PROCESS.md](./PROCESS.md) | SDD phases: spec → plan → tasks → implement → QA |
 | [STACK.md](./STACK.md) | Technology stack |
+| [docs/API.md](./docs/API.md) | Integration reference (install, env, methods, returns) |
 | [docs/spec.md](./docs/spec.md) | Behaviour contract |
 
 ## Ground rules

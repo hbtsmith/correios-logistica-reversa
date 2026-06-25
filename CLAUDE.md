@@ -6,8 +6,10 @@
 
 > **Load order for AI sessions:**
 > 1. This file (index + current state)
-> 2. [docs/spec.md](./docs/spec.md) — behaviour contract
-> 3. [docs/tasks.md](./docs/tasks.md) — active checklist
+> 2. [docs/API.md](./docs/API.md) — install, env vars, methods, return shapes
+> 3. [llms.txt](./llms.txt) — compact reference
+> 4. [docs/spec.md](./docs/spec.md) — behaviour contract
+> 5. [docs/tasks.md](./docs/tasks.md) — active checklist
 
 ---
 

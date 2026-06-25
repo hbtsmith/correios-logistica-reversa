@@ -39,7 +39,10 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "llms.txt",
+    "docs/API.md",
+    ".env.example"
   ],
   "engines": {
     "node": ">=20"

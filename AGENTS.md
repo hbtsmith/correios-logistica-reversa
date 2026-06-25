@@ -2,10 +2,12 @@
 
 > Load before implementation work in this repository.
 
-1. [CONSTITUTION.md](./CONSTITUTION.md) — non-negotiables
-2. [STACK.md](./STACK.md) — technology choices
-3. [PROCESS.md](./PROCESS.md) — SDD phases and gates
-4. Active artefacts: [docs/spec.md](./docs/spec.md) + [docs/tasks.md](./docs/tasks.md)
+1. [docs/API.md](./docs/API.md) — **integration reference** (install, env, methods, returns)
+2. [llms.txt](./llms.txt) — compact machine-readable summary
+3. [CONSTITUTION.md](./CONSTITUTION.md) — non-negotiables
+4. [STACK.md](./STACK.md) — technology choices
+5. [PROCESS.md](./PROCESS.md) — SDD phases and gates
+6. Active artefacts: [docs/spec.md](./docs/spec.md) + [docs/tasks.md](./docs/tasks.md)
 
 ---
 
@@ -63,6 +65,8 @@ Type errors = failing test. Do not mark done while red.
 | Constitution | [CONSTITUTION.md](./CONSTITUTION.md) |
 | Process | [PROCESS.md](./PROCESS.md) |
 | Stack | [STACK.md](./STACK.md) |
+| **API / integration** | [docs/API.md](./docs/API.md) |
+| AI summary | [llms.txt](./llms.txt) |
 | Spec | [docs/spec.md](./docs/spec.md) |
 | Plan | [docs/plan.md](./docs/plan.md) |
 | Tasks | [docs/tasks.md](./docs/tasks.md) |

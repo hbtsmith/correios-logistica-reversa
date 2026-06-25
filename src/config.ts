@@ -62,6 +62,18 @@ export function validateConfig(input: CorreiosConfig): CorreiosConfig {
   };
 }
 
+/**
+ * Build {@link CorreiosConfig} from environment variables.
+ *
+ * Required: `CORREIOS_ENV`, `CORREIOS_USUARIO`, `CORREIOS_SENHA`,
+ * `CORREIOS_COD_ADMINISTRATIVO`, `CORREIOS_CARTAO_POSTAGEM`,
+ * `CORREIOS_NUMERO_CONTRATO`, `CORREIOS_CNPJ`, `CORREIOS_CODIGO_SERVICO`.
+ *
+ * Does not load `.env` files — populate `process.env` in the host app first.
+ *
+ * @throws {CorreiosConfigError} when required vars are missing or invalid
+ * @see docs/API.md
+ */
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): CorreiosConfig {

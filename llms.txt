@@ -1,0 +1,63 @@
+# correios-logistica-reversa
+
+> TypeScript client for Correios Logística Reversa SOAP (Brazil reverse logistics).
+
+## Read first
+
+- Full API + env vars + return shapes: docs/API.md
+- Human quick start: README.md
+- AI agent index: AGENTS.md
+
+## Install
+
+npm install correios-logistica-reversa
+
+Requires Node.js >= 20. ESM + CJS. Types included.
+
+## Required environment variables
+
+CORREIOS_ENV=production|homologation
+CORREIOS_USUARIO=
+CORREIOS_SENHA=
+CORREIOS_COD_ADMINISTRATIVO=
+CORREIOS_CARTAO_POSTAGEM=
+CORREIOS_NUMERO_CONTRATO=
+CORREIOS_CNPJ=
+CORREIOS_CODIGO_SERVICO=
+
+Host app must populate process.env before loadConfigFromEnv(). Library does NOT load .env files.
+
+## Minimal usage
+
+import { CorreiosLogisticaReversaClient, loadConfigFromEnv } from 'correios-logistica-reversa';
+
+const client = new CorreiosLogisticaReversaClient({ config: loadConfigFromEnv() });
+
+const issue = await client.issueAuthorization({
+  destinatario: { /* company receiving return */ },
+  coleta: { ag: 15, remetente: { /* customer sending */ } },
+});
+
+if (issue.numeroColeta) { /* success */ }
+else if (issue.codigoErro) { /* Correios business error */ }
+
+await client.cancelOrder({ numeroPedido: issue.numeroColeta });
+
+## Methods
+
+issueAuthorization → solicitarPostagemReversa → IssueAuthorizationResult
+trackByOrderNumber → acompanharPedido → TrackResult
+trackByDate → acompanharPedidoPorData → TrackResult
+cancelOrder → cancelarPedido → CancelOrderResult
+
+## Domain
+
+destinatario = company warehouse receiving the return
+coleta.remetente = customer posting the package back
+sms field only on remetente, not destinatario
+
+## Errors
+
+Business errors: returned in result.codigoErro (not thrown)
+Transport errors: CorreiosTransportError thrown
+Config errors: CorreiosConfigError thrown on loadConfigFromEnv/validateConfig
