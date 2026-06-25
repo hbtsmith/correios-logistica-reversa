@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { CorreiosResponseError } from '../../src/errors.js';
 import { buildIssueAuthorizationPayload, parseIssueAuthorizationResponse } from '../../src/parsers/issue-authorization.js';
 import {
   buildCancelOrderPayload,
@@ -38,24 +39,42 @@ describe('payload builders', () => {
   it('builds issue authorization payload', () => {
     const payload = buildIssueAuthorizationPayload(baseConfig, {
       destinatario: { ...party, nome: 'Privato' },
+      codigoServico: '04170',
       coleta: {
         ag: 5,
         remetente: party,
         valorDeclarado: 250,
+        objCol: { desc: 'Anel', num: 'SKU-1' },
       },
     });
 
     expect(payload.codAdministrativo).toBe('17000190');
-    expect(payload.codigo_servico).toBe('04677');
+    expect(payload.codigo_servico).toBe('04170');
     expect(payload.coletas_solicitadas).toMatchObject({
       tipo: 'A',
       ag: '5',
       valor_declarado: 250,
+      obj_col: {
+        item: 1,
+        desc: 'Anel',
+        entrega: '',
+        num: 'SKU-1',
+        id: '',
+      },
     });
     expect(payload.coletas_solicitadas).toHaveProperty('remetente');
     expect((payload.coletas_solicitadas as Record<string, unknown>).remetente).toMatchObject({
       cep: '80420010',
     });
+  });
+
+  it('omits zero valorDeclarado from issue payload', () => {
+    const payload = buildIssueAuthorizationPayload(baseConfig, {
+      destinatario: party,
+      coleta: { ag: 3, remetente: party, valorDeclarado: 0 },
+    });
+
+    expect(payload.coletas_solicitadas).not.toHaveProperty('valor_declarado');
   });
 
   it('builds track and cancel payloads', () => {
@@ -101,22 +120,72 @@ describe('response parsers', () => {
       codigo_erro: 121,
       descricao_erro: 'Ja existe um pedido 1134135328',
       status_objeto: 'PENDENTE',
+      data_solicitacao: '2026-06-25',
     });
 
     expect(result.codigoErro).toBe(121);
     expect(result.descricaoErro).toContain('1134135328');
+    expect(result.statusObjeto).toBe('PENDENTE');
+    expect(result.dataSolicitacao).toBe('2026-06-25');
+  });
+
+  it('parses cod_erro and msg_erro aliases', () => {
+    const result = parseIssueAuthorizationResponse({
+      solicitarPostagemReversa: {
+        resultado_solicitacao: {
+          cod_erro: '99',
+          msg_erro: 'Erro generico',
+        },
+      },
+    });
+
+    expect(result.codigoErro).toBe('99');
+    expect(result.descricaoErro).toBe('Erro generico');
+  });
+
+  it('treats codigo_erro 0 as success', () => {
+    const result = parseIssueAuthorizationResponse({
+      resultado_solicitacao: {
+        codigo_erro: '0',
+        numero_coleta: '555',
+      },
+    });
+
+    expect(result.numeroColeta).toBe('555');
+    expect(result.codigoErro).toBeUndefined();
+  });
+
+  it('throws on unexpected issue authorization response', () => {
+    expect(() => parseIssueAuthorizationResponse(null)).toThrow(CorreiosResponseError);
   });
 
   it('parses track and cancel responses', () => {
     const track = parseTrackByOrderNumberResponse({ acompanharPedido: { coleta: [{ numero_pedido: '1' }] } });
     expect(track.coleta).toEqual({ coleta: [{ numero_pedido: '1' }] });
 
+    const trackFallback = parseTrackByOrderNumberResponse({ coleta: { numero_pedido: '2' } });
+    expect(trackFallback.coleta).toEqual({ numero_pedido: '2' });
+
     const byDate = parseTrackByDateResponse({ acompanharPedidoPorData: { coleta: [] } });
     expect(byDate.coleta).toEqual({ coleta: [] });
+
+    const byDateFallback = parseTrackByDateResponse({ coleta: [] });
+    expect(byDateFallback.coleta).toEqual([]);
 
     const cancel = parseCancelOrderResponse({
       cancelarPedido: { datahora_cancelamento: '2026-06-25T10:00:00' },
     });
     expect(cancel.objetoPostal).toEqual({ datahora_cancelamento: '2026-06-25T10:00:00' });
+
+    const cancelFallback = parseCancelOrderResponse({
+      objeto_postal: { datahora_cancelamento: '2026-06-26' },
+    });
+    expect(cancelFallback.objetoPostal).toEqual({ datahora_cancelamento: '2026-06-26' });
+  });
+
+  it('throws on unexpected track and cancel responses', () => {
+    expect(() => parseTrackByOrderNumberResponse(undefined)).toThrow(CorreiosResponseError);
+    expect(() => parseTrackByDateResponse(undefined)).toThrow(CorreiosResponseError);
+    expect(() => parseCancelOrderResponse(undefined)).toThrow(CorreiosResponseError);
   });
 });

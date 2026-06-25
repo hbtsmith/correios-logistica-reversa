@@ -30,7 +30,7 @@ Before marking any task `[x]`:
 ```bash
 npm run typecheck
 npm run lint
-npm test
+npm run test:coverage   # ≥ 80% all metrics — enforced in CI
 npm run build
 ```
 

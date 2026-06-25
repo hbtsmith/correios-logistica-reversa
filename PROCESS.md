@@ -193,7 +193,7 @@ npm run build
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run build
-npm run test:coverage   # ≥ 80% on src/
+npm run test:coverage   # ≥ 80% all metrics — CI enforced
 ```
 
 **Exit:** `qa-summary.md` committed; zero 🔴 blockers.

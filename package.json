@@ -53,7 +53,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:live": "vitest run --config vitest.live.config.ts",
-    "prepublishOnly": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run test:coverage && npm run build"
   },
   "dependencies": {
     "soap": "^1.1.12",

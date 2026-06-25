@@ -33,12 +33,12 @@ Structural code in English: files, classes, functions, variables, error codes, c
 - Every public method: unit test happy + failure path
 - `[TEST]` tasks before implementation — never invert
 - Zero failing tests before merge
-- Coverage target ≥ 80% on `src/`
+- **Coverage minimum 80%** — statements, branches, functions, lines (enforced in CI)
 
 ## CI gate — HARD RULE
 
 ```bash
-npm run typecheck && npm run lint && npm test && npm run build
+npm run typecheck && npm run lint && npm run test:coverage && npm run build
 ```
 
 All green on Node 20 and 22 before merge to `main`.

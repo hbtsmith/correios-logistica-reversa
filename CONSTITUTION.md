@@ -185,10 +185,20 @@ correios-logistica-reversa/
 - **AAA pattern** — Arrange, Act, Assert.
 - Tests live in `tests/unit/**/*.test.ts`.
 
-### Coverage
+### Coverage — HARD RULE (minimum 80%)
 
-- Target: **≥ 80%** statements/branches/functions/lines on `src/` (library is small; hold a high bar).
-- Run: `npm run test:coverage` before closing a feature slice.
+> **Enforced in CI.** A PR that drops below the threshold is not mergeable.
+
+| Metric | Minimum |
+|--------|---------|
+| Statements | **80%** |
+| Branches | **80%** |
+| Functions | **80%** |
+| Lines | **80%** |
+
+- Scope: `src/**/*.ts`, excluding `src/types/**` (type-only module).
+- Config: `vitest.config.ts` → `coverage.thresholds`
+- Run locally: `npm run test:coverage`
 - New code paths without tests block merge.
 
 ### Test-first workflow (preferred)
@@ -209,10 +219,10 @@ correios-logistica-reversa/
 After **every** code change:
 
 ```bash
-npm run typecheck && npm run lint && npm test && npm run build
+npm run typecheck && npm run lint && npm run test:coverage && npm run build
 ```
 
-Zero failing tests. No "fix later."
+Zero failing tests. Coverage ≥ 80% on all four metrics. No "fix later."
 
 ---
 
@@ -261,5 +271,6 @@ Lowercase imperative mood · no trailing period · max 72 chars · scope = area 
 
 ---
 
-*Constitution version: 1.0 — 2026-06-25*
-*Initial governance port from Bervice SDD model, adapted for OSS SOAP client library.*
+*Constitution version: 1.1 — 2026-06-25*
+*1.1: Coverage minimum 80% on all four metrics — HARD RULE, enforced in CI via Vitest thresholds.*
+*Prior: 1.0 — initial governance port from Bervice SDD model.*

@@ -66,6 +66,20 @@ describe('CorreiosLogisticaReversaClient', () => {
     expect(transport.calls[0]?.method).toBe('solicitarPostagemReversa');
   });
 
+  it('propagates transport errors from SOAP layer', async () => {
+    const transport: SoapTransport = {
+      call: vi.fn(async () => {
+        throw new Error('SOAP down');
+      }),
+    };
+    const client = new CorreiosLogisticaReversaClient({ config, transport });
+
+    await expect(client.issueAuthorization({
+      destinatario: party,
+      coleta: { ag: 5, remetente: party },
+    })).rejects.toThrow('SOAP down');
+  });
+
   it('tracks and cancels via SOAP transport', async () => {
     const transport = createMockTransport();
     const client = new CorreiosLogisticaReversaClient({ config, transport });

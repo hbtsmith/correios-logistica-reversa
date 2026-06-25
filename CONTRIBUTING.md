@@ -15,7 +15,7 @@ Thank you for helping improve `correios-logistica-reversa`.
 
 1. **No secrets in code** — use `.env` locally; never commit credentials.
 2. **Tests required** — unit tests with fixtures for any behaviour change; TDD when `docs/tasks.md` tags `[TEST]`.
-3. **CI must pass** — `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
+3. **CI must pass** — `npm run typecheck`, `npm run lint`, `npm run test:coverage` (≥ 80%), `npm run build`.
 4. **Clean code** — SOLID, DRY, English structural identifiers; Correios SOAP field names on DTOs only.
 5. **Scope** — v1 focuses on Logística Reversa SOAP; SIGEP/PLP can be proposed as separate modules.
 
