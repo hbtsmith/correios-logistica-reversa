@@ -1,0 +1,42 @@
+---
+description: SDD process — spec before code, task order, commits, branching.
+alwaysApply: true
+---
+
+# Process — Spec-Driven Development
+
+> Full workflow: `PROCESS.md`.
+
+## Spec before code
+
+No implementation without `docs/spec.md` coverage and a `docs/tasks.md` entry.
+
+## Artefact order
+
+```
+brainstorm.md → spec.md → plan.md → tasks.md → implement → qa-summary.md → close
+```
+
+## Implementation order
+
+```
+[TEST] → FAIL → implement → GREEN → gates → mark [x]
+```
+
+Never mark `[x]` while typecheck or lint is red.
+
+## Commits — Conventional Commits
+
+```
+type(scope): description
+```
+
+Types: `feat` `fix` `refactor` `docs` `test` `style` `perf` `chore`
+
+Scopes: `client`, `parsers`, `soap`, `config`, `ci`, `docs`
+
+## Branching
+
+- Branch from `main`: `feat/*`, `fix/*`, `chore/*`, `docs/*`
+- `main` always green
+- Decisions in git artefacts — not chat memory

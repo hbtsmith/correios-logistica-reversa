@@ -1,0 +1,53 @@
+---
+description: Testing standards — Vitest, TDD, coverage, live test policy.
+globs: **/*.test.ts,tests/**
+alwaysApply: false
+---
+
+# Tests — Standards
+
+> Coverage target: **≥ 80%** on `src/`. Zero failing tests — non-negotiable.
+
+## TDD order
+
+```
+1. Write test (FAIL)
+2. Implement minimum green change
+3. Refactor
+4. typecheck + lint + test + build
+```
+
+## Vitest conventions
+
+```ts
+import { describe, it, expect, vi } from 'vitest';
+
+describe('CorreiosLogisticaReversaClient', () => {
+  it('should return authorization when SOAP succeeds', async () => {
+    // Arrange — mock SoapTransport
+    // Act
+    // Assert
+  });
+});
+```
+
+- Unit tests: `tests/unit/**/*.test.ts` — no network
+- Mock `SoapTransport`, not global `soap` module when possible
+- Fixtures for raw SOAP payloads in `tests/fixtures/` when reused
+
+## Live tests
+
+- Path: `tests/live/`
+- Run: `CORREIOS_LIVE_TEST=1 npm run test:live`
+- Cancel authorizations created during live runs
+- Never add live tests to default `npm test` or CI
+
+## Before closing a task
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run test:coverage   # when src/ changed
+npm run build
+```

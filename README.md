@@ -101,6 +101,8 @@ const client = new CorreiosLogisticaReversaClient({
 
 ## Development
 
+Governance: [CONSTITUTION.md](./CONSTITUTION.md) · [PROCESS.md](./PROCESS.md) · [STACK.md](./STACK.md)
+
 ```bash
 npm install
 npm test

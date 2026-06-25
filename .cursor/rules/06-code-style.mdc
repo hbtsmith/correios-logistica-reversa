@@ -1,0 +1,50 @@
+---
+description: Clean code — SOLID, DRY, function limits, naming, errors.
+alwaysApply: true
+---
+
+# Code Style — Clean Code
+
+> Quality bar: senior OSS library — small surface, high trust.
+
+## Functions
+
+- ~30 lines max (split when readability gains)
+- Max 3 params → use input interface
+- Early return; guard clauses first
+- One abstraction level per function
+
+## SOLID + DRY
+
+- **S** — parsers parse; client orchestrates; transport sends
+- **O** — new operations via new methods/parsers, not transport forks
+- **L** — error subclasses substitutable for `CorreiosError`
+- **I** — small `SoapTransport` interface
+- **D** — client depends on transport abstraction; inject in tests
+- **DRY** — shared builders in one module; no duplicated SOAP mapping
+
+## Naming
+
+| Kind | Convention |
+|------|------------|
+| Files | `kebab-case.ts` |
+| Functions, vars | `camelCase` |
+| Types, classes | `PascalCase` |
+| Constants | `SCREAMING_SNAKE` or `camelCase` for config keys |
+
+## Errors
+
+- Use typed errors from `errors.ts`
+- No silent catch — wrap with `CorreiosTransportError` etc.
+- Parsers: handle Correios in-body error codes explicitly
+
+## Comments
+
+- Why, not what
+- JSDoc on all public exports
+
+## TypeScript
+
+- `unknown` at SOAP boundaries; narrow in parsers
+- No commented-out code in merged PRs
+- No `TODO` without issue link

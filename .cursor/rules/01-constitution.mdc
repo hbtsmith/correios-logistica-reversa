@@ -1,0 +1,50 @@
+---
+description: Non-negotiable rules — secrets, identifiers, tests, CI, semver.
+alwaysApply: true
+---
+
+# Constitution — Non-Negotiable Rules
+
+> Full governance: `CONSTITUTION.md`. AI must never violate these.
+
+## Secrets — HARD RULE
+
+- Never commit credentials — `.env` only; `.env.example` is the template
+- Live tests opt-in: `CORREIOS_LIVE_TEST=1` — never in CI
+- Never log passwords or full contract secrets
+
+## English identifiers — HARD RULE
+
+Structural code in English: files, classes, functions, variables, error codes, commits.
+
+**Exception:** DTO fields mirroring Correios SOAP (`destinatario`, `coleta`, `numeroPedido`, etc.).
+
+- ❌ `function solicitarAutorizacao()`
+- ✅ `issueAuthorization()` with `destinatario` on input type
+
+## TypeScript — HARD RULE
+
+- `strict: true` + `exactOptionalPropertyTypes: true`
+- No `any` without documented reason
+- Public exports need JSDoc
+
+## Tests — HARD RULE
+
+- Every public method: unit test happy + failure path
+- `[TEST]` tasks before implementation — never invert
+- Zero failing tests before merge
+- Coverage target ≥ 80% on `src/`
+
+## CI gate — HARD RULE
+
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+```
+
+All green on Node 20 and 22 before merge to `main`.
+
+## SDD — spec before code
+
+Read `CONSTITUTION.md` → `PROCESS.md` → `docs/spec.md` → `docs/tasks.md` before implementing.
+
+If code deviates from spec, update spec first or fix code — spec is truth.

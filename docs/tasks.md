@@ -30,8 +30,9 @@ Execute in order. Mark `[x]` when done.
 
 - [x] T016 README + CONTRIBUTING
 - [x] T017 GitHub Actions CI
+- [x] T017b Governance: CONSTITUTION, PROCESS, STACK, AGENTS, CLAUDE, `.cursor/rules`
 - [ ] T018 [TEST] Opt-in live integration test script (`test:live`)
-- [ ] T019 npm publish dry-run + github repo push (manual)
+- [x] T019 npm publish dry-run + github repo push (manual)
 
 ## Phase 4 — v1.0.0 gate
 

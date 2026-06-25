@@ -1,0 +1,37 @@
+---
+description: correios-logistica-reversa project context — read first every session.
+alwaysApply: true
+---
+
+# correios-logistica-reversa — Project Context
+
+**What it is:** TypeScript npm library for Correios Logística Reversa SOAP (reverse logistics authorizations, tracking, cancel).
+
+**Stack:** TypeScript strict · Node ≥ 20 · Vitest · tsup · ESLint 9 · `soap` + Zod.
+
+## Load order — before any implementation
+
+1. `AGENTS.md` or `CLAUDE.md` — current state, quick links
+2. `CONSTITUTION.md` — ALL non-negotiables (supersedes everything)
+3. `STACK.md` — technology choices
+4. `PROCESS.md` — SDD workflow
+5. `docs/spec.md` + `docs/tasks.md` — active work
+
+**Never skip `CONSTITUTION.md`.** If rules conflict, constitution wins.
+
+## Layout
+
+| Path | Purpose |
+|------|---------|
+| `src/client.ts` | Public client orchestration |
+| `src/config.ts` | Config + `loadConfigFromEnv` |
+| `src/soap/` | Injectable transport + WSDL factory |
+| `src/parsers/` | SOAP response normalization |
+| `tests/unit/` | CI unit tests (mocked transport) |
+| `tests/live/` | Opt-in integration (`CORREIOS_LIVE_TEST=1`) |
+
+## Verify after every change
+
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+```
