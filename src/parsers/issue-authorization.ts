@@ -18,7 +18,7 @@ export function buildIssueAuthorizationPayload(
     ag: String(input.coleta.ag),
     servico_adicional: input.coleta.servicoAdicional ?? '',
     ar: input.coleta.ar ?? 0,
-    remetente: partyToSoap(input.coleta.remetente),
+    remetente: partyToSoap(input.coleta.remetente, { includeSms: true }),
   };
 
   if (input.coleta.valorDeclarado !== undefined && input.coleta.valorDeclarado > 0) {
@@ -45,16 +45,23 @@ export function buildIssueAuthorizationPayload(
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  if (value && typeof value === 'object') {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
     return value as Record<string, unknown>;
   }
   return null;
 }
 
+function normalizeResultado(value: unknown): Record<string, unknown> | null {
+  if (Array.isArray(value) && value.length > 0) {
+    return asRecord(value[0]);
+  }
+  return asRecord(value);
+}
+
 export function parseIssueAuthorizationResponse(raw: unknown): IssueAuthorizationResult {
   const root = asRecord(raw);
   const envelope = asRecord(root?.solicitarPostagemReversa) ?? root;
-  const result = asRecord(envelope?.resultado_solicitacao) ?? envelope;
+  const result = normalizeResultado(envelope?.resultado_solicitacao) ?? envelope;
 
   if (!result) {
     throw new CorreiosResponseError('Unexpected Correios response for solicitarPostagemReversa', {

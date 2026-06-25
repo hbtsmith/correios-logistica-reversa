@@ -115,6 +115,25 @@ describe('response parsers', () => {
     expect(result.prazo).toBe('2026-07-01');
   });
 
+  it('parses production array resultado_solicitacao', () => {
+    const result = parseIssueAuthorizationResponse({
+      solicitarPostagemReversa: {
+        resultado_solicitacao: [
+          {
+            numero_coleta: '4638012880',
+            prazo: '10/07/2026',
+            status_objeto: '01',
+            codigo_erro: 0,
+          },
+        ],
+      },
+    });
+
+    expect(result.numeroColeta).toBe('4638012880');
+    expect(result.prazo).toBe('10/07/2026');
+    expect(result.statusObjeto).toBe('01');
+  });
+
   it('parses business error 121 on issue authorization', () => {
     const result = parseIssueAuthorizationResponse({
       codigo_erro: 121,

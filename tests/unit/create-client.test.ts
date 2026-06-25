@@ -42,6 +42,9 @@ describe('createSoapClient', () => {
     const client = await createSoapClient('https://example.test/wsdl', config);
 
     expect(createClientAsync).toHaveBeenCalledWith('https://example.test/wsdl', {
+      wsdl_headers: {
+        Authorization: `Basic ${Buffer.from('empresacws:123456', 'utf8').toString('base64')}`,
+      },
       wsdl_options: {
         timeout: 30_000,
         rejectUnauthorized: false,

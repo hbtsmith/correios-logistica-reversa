@@ -8,7 +8,12 @@ function digitsOnly(value: string | undefined): string | undefined {
   return digits.length > 0 ? digits : undefined;
 }
 
-export function partyToSoap(party: Party): Record<string, unknown> {
+export interface PartyToSoapOptions {
+  /** Correios accepts `sms` only on remetente, not destinatario. */
+  includeSms?: boolean;
+}
+
+export function partyToSoap(party: Party, options?: PartyToSoapOptions): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     nome: party.nome,
     logradouro: party.logradouro,
@@ -33,7 +38,9 @@ export function partyToSoap(party: Party): Record<string, unknown> {
   if (dddCelular) payload.ddd_celular = dddCelular;
   if (celular) payload.celular = celular;
   if (identificacao) payload.identificacao = identificacao;
-  if (party.sms) payload.sms = 'S';
+  if (options?.includeSms && party.sms) {
+    payload.sms = 'S';
+  }
 
   return payload;
 }

@@ -36,8 +36,14 @@ describe('partyToSoap', () => {
       ddd_celular: '41',
       celular: '988887777',
       identificacao: '12345678901',
-      sms: 'S',
     });
+    expect(payload).not.toHaveProperty('sms');
+
+    const remetentePayload = partyToSoap(
+      { ...baseParty, sms: true },
+      { includeSms: true },
+    );
+    expect(remetentePayload.sms).toBe('S');
   });
 
   it('defaults empty optional strings and skips blank digit fields', () => {
