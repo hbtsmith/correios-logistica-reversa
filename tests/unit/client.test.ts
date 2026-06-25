@@ -85,12 +85,16 @@ describe('CorreiosLogisticaReversaClient', () => {
     const client = new CorreiosLogisticaReversaClient({ config, transport });
 
     const track = await client.trackByOrderNumber({ numeroPedido: '9999999999' });
-    expect(track.coleta).toEqual({ numero_pedido: '9999999999' });
+    expect(track.coleta).toEqual({ numero_pedido: '9999999999' } as Record<string, unknown>);
 
     const byDate = await client.trackByDate({ data: '2026-06-01' });
-    expect(byDate.coleta).toEqual({ coleta: [] });
+    expect(byDate.coleta).toEqual([]);
 
     const cancel = await client.cancelOrder({ numeroPedido: '9999999999' });
-    expect(cancel.objetoPostal).toEqual({ datahora_cancelamento: '2026-06-25' });
+    expect(cancel.objetoPostal).toEqual({
+      datahora_cancelamento: '2026-06-25',
+      objeto_postal: { datahora_cancelamento: '2026-06-25' },
+    });
+    expect(cancel.datahoraCancelamento).toBe('2026-06-25');
   });
 });

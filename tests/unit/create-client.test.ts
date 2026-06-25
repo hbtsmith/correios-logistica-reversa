@@ -13,7 +13,7 @@ vi.mock('soap', () => ({
 }));
 
 import { createSoapClient } from '../../src/soap/create-client.js';
-import { CorreiosTransportError } from '../../src/errors.js';
+import { CorreiosTransportError, TRANSPORT_ERROR_CODES } from '../../src/errors.js';
 import type { CorreiosConfig } from '../../src/types/index.js';
 
 const config: CorreiosConfig = {
@@ -60,6 +60,7 @@ describe('createSoapClient', () => {
 
     await expect(createSoapClient('https://bad.test/wsdl', config)).rejects.toMatchObject({
       name: 'CorreiosTransportError',
+      code: TRANSPORT_ERROR_CODES.WSDL_CREATE_FAILED,
       message: expect.stringContaining('Failed to create SOAP client'),
     });
     await expect(createSoapClient('https://bad.test/wsdl', config)).rejects.toBeInstanceOf(

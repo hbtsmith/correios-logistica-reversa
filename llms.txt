@@ -38,8 +38,10 @@ const issue = await client.issueAuthorization({
   coleta: { ag: 15, remetente: { /* customer sending */ } },
 });
 
-if (issue.numeroColeta) { /* success */ }
-else if (issue.codigoErro) { /* Correios business error */ }
+import { isIssueSuccess, isCorreiosBusinessError } from 'correios-logistica-reversa';
+
+if (isIssueSuccess(issue)) { /* numeroColeta is string */ }
+else if (isCorreiosBusinessError(issue)) { /* codigoErro + descricaoErro */ }
 
 await client.cancelOrder({ numeroPedido: issue.numeroColeta });
 
@@ -58,6 +60,7 @@ sms field only on remetente, not destinatario
 
 ## Errors
 
-Business errors: returned in result.codigoErro (not thrown)
-Transport errors: CorreiosTransportError thrown
+Validation errors: CorreiosValidationError (code VALIDATION_FAILED) — Zod input checks before SOAP
+Business errors: returned in result.codigoErro (not thrown) — use isCorreiosBusinessError()
+Transport errors: CorreiosTransportError with TRANSPORT_ERROR_CODES (WSDL_UNAUTHORIZED, SOAP_FAULT, etc.)
 Config errors: CorreiosConfigError thrown on loadConfigFromEnv/validateConfig

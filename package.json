@@ -1,6 +1,6 @@
 {
   "name": "correios-logistica-reversa",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "TypeScript client for Correios Logística Reversa SOAP Web Service",
   "author": "Herbert Smith <hbt.smith@yahoo.com>",
   "license": "MIT",

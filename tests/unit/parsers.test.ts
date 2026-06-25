@@ -180,26 +180,35 @@ describe('response parsers', () => {
 
   it('parses track and cancel responses', () => {
     const track = parseTrackByOrderNumberResponse({ acompanharPedido: { coleta: [{ numero_pedido: '1' }] } });
-    expect(track.coleta).toEqual({ coleta: [{ numero_pedido: '1' }] });
+    expect(track.coleta).toEqual([{ numero_pedido: '1' }]);
 
     const trackFallback = parseTrackByOrderNumberResponse({ coleta: { numero_pedido: '2' } });
     expect(trackFallback.coleta).toEqual({ numero_pedido: '2' });
 
     const byDate = parseTrackByDateResponse({ acompanharPedidoPorData: { coleta: [] } });
-    expect(byDate.coleta).toEqual({ coleta: [] });
+    expect(byDate.coleta).toEqual([]);
 
     const byDateFallback = parseTrackByDateResponse({ coleta: [] });
     expect(byDateFallback.coleta).toEqual([]);
 
     const cancel = parseCancelOrderResponse({
-      cancelarPedido: { datahora_cancelamento: '2026-06-25T10:00:00' },
+      cancelarPedido: {
+        codigo_administrativo: '17035201',
+        objeto_postal: {
+          numero_pedido: '4638012880',
+          status_pedido: 'Desistência do Cliente ECT',
+          datahora_cancelamento: '25/06/2026 15:22',
+        },
+      },
     });
-    expect(cancel.objetoPostal).toEqual({ datahora_cancelamento: '2026-06-25T10:00:00' });
+    expect(cancel.numeroPedido).toBe('4638012880');
+    expect(cancel.statusPedido).toBe('Desistência do Cliente ECT');
+    expect(cancel.datahoraCancelamento).toBe('25/06/2026 15:22');
 
     const cancelFallback = parseCancelOrderResponse({
       objeto_postal: { datahora_cancelamento: '2026-06-26' },
     });
-    expect(cancelFallback.objetoPostal).toEqual({ datahora_cancelamento: '2026-06-26' });
+    expect(cancelFallback.datahoraCancelamento).toBe('2026-06-26');
   });
 
   it('throws on unexpected track and cancel responses', () => {

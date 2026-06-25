@@ -1,7 +1,7 @@
 import soap from 'soap';
 
 import type { CorreiosConfig } from '../types/index.js';
-import { CorreiosTransportError } from '../errors.js';
+import { CorreiosTransportError, classifyWsdlError } from '../errors.js';
 import type { SoapClientLike } from './transport.js';
 
 function basicAuthHeader(usuario: string, senha: string): string {
@@ -29,6 +29,7 @@ export async function createSoapClient(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new CorreiosTransportError(`Failed to create SOAP client for ${wsdlUrl}: ${message}`, {
+      code: classifyWsdlError(error),
       cause: error,
     });
   }

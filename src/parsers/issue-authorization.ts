@@ -5,6 +5,7 @@ import type {
   IssueAuthorizationInput,
   IssueAuthorizationResult,
 } from '../types/index.js';
+import { asRecord, normalizeSoapResult, pickString } from './shared.js';
 import { partyToSoap } from './party.js';
 
 export function buildIssueAuthorizationPayload(
@@ -44,24 +45,10 @@ export function buildIssueAuthorizationPayload(
   };
 }
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-  return null;
-}
-
-function normalizeResultado(value: unknown): Record<string, unknown> | null {
-  if (Array.isArray(value) && value.length > 0) {
-    return asRecord(value[0]);
-  }
-  return asRecord(value);
-}
-
 export function parseIssueAuthorizationResponse(raw: unknown): IssueAuthorizationResult {
   const root = asRecord(raw);
   const envelope = asRecord(root?.solicitarPostagemReversa) ?? root;
-  const result = normalizeResultado(envelope?.resultado_solicitacao) ?? envelope;
+  const result = normalizeSoapResult(envelope?.resultado_solicitacao) ?? envelope;
 
   if (!result) {
     throw new CorreiosResponseError('Unexpected Correios response for solicitarPostagemReversa', {
@@ -79,24 +66,29 @@ export function parseIssueAuthorizationResponse(raw: unknown): IssueAuthorizatio
     if (descricaoErro) {
       errorResult.descricaoErro = String(descricaoErro);
     }
-    if (result.status_objeto) {
-      errorResult.statusObjeto = String(result.status_objeto);
+    const statusObjeto = pickString(result, 'status_objeto');
+    if (statusObjeto) {
+      errorResult.statusObjeto = statusObjeto;
     }
-    if (result.data_solicitacao) {
-      errorResult.dataSolicitacao = String(result.data_solicitacao);
+    const dataSolicitacao = pickString(result, 'data_solicitacao');
+    if (dataSolicitacao) {
+      errorResult.dataSolicitacao = dataSolicitacao;
     }
     return errorResult;
   }
 
   const successResult: IssueAuthorizationResult = { raw: result };
-  if (result.numero_coleta) {
-    successResult.numeroColeta = String(result.numero_coleta);
+  const numeroColeta = pickString(result, 'numero_coleta');
+  if (numeroColeta) {
+    successResult.numeroColeta = numeroColeta;
   }
-  if (result.prazo) {
-    successResult.prazo = String(result.prazo);
+  const prazo = pickString(result, 'prazo');
+  if (prazo) {
+    successResult.prazo = prazo;
   }
-  if (result.status_objeto) {
-    successResult.statusObjeto = String(result.status_objeto);
+  const statusObjeto = pickString(result, 'status_objeto');
+  if (statusObjeto) {
+    successResult.statusObjeto = statusObjeto;
   }
   return successResult;
 }

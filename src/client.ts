@@ -11,7 +11,7 @@ import {
   buildIssueAuthorizationPayload,
   parseIssueAuthorizationResponse,
 } from './parsers/issue-authorization.js';
-import { NodeSoapTransport, type SoapTransport } from './soap/transport.js';
+import { NodeSoapTransport, SOAP_OPERATIONS, type SoapTransport } from './soap/transport.js';
 import type {
   CancelOrderInput,
   CancelOrderResult,
@@ -22,6 +22,12 @@ import type {
   TrackByOrderNumberInput,
   TrackResult,
 } from './types/index.js';
+import {
+  validateCancelOrderInput,
+  validateIssueAuthorizationInput,
+  validateTrackByDateInput,
+  validateTrackByOrderNumberInput,
+} from './validation/validate-input.js';
 
 export interface CorreiosLogisticaReversaClientOptions {
   config: CorreiosConfig;
@@ -53,46 +59,48 @@ export class CorreiosLogisticaReversaClient {
    *
    * Success: `result.numeroColeta` is set. Business errors: `result.codigoErro` (not thrown).
    *
-   * @param input.destinatario — company receiving the return
-   * @param input.coleta.remetente — customer posting at Correios
-   * @param input.coleta.ag — validity days for posting (e.g. 15)
+   * @throws {CorreiosValidationError} when input fails Zod validation
    */
   async issueAuthorization(input: IssueAuthorizationInput): Promise<IssueAuthorizationResult> {
-    const payload = buildIssueAuthorizationPayload(this.config, input);
-    const raw = await this.transport.call('solicitarPostagemReversa', payload);
+    const validated = validateIssueAuthorizationInput(input);
+    const payload = buildIssueAuthorizationPayload(this.config, validated);
+    const raw = await this.transport.call(SOAP_OPERATIONS.issueAuthorization, payload);
     return parseIssueAuthorizationResponse(raw);
   }
 
   /**
    * Track one authorization by order number (SOAP: acompanharPedido).
    *
-   * @param input.numeroPedido — value from `issueAuthorization().numeroColeta`
+   * @throws {CorreiosValidationError} when input fails Zod validation
    */
   async trackByOrderNumber(input: TrackByOrderNumberInput): Promise<TrackResult> {
-    const payload = buildTrackByOrderNumberPayload(this.config, input);
-    const raw = await this.transport.call('acompanharPedido', payload);
+    const validated = validateTrackByOrderNumberInput(input);
+    const payload = buildTrackByOrderNumberPayload(this.config, validated);
+    const raw = await this.transport.call(SOAP_OPERATIONS.trackByOrderNumber, payload);
     return parseTrackByOrderNumberResponse(raw);
   }
 
   /**
    * List authorizations for a date (SOAP: acompanharPedidoPorData).
    *
-   * @param input.data — `YYYY-MM-DD`
+   * @throws {CorreiosValidationError} when input fails Zod validation
    */
   async trackByDate(input: TrackByDateInput): Promise<TrackResult> {
-    const payload = buildTrackByDatePayload(this.config, input);
-    const raw = await this.transport.call('acompanharPedidoPorData', payload);
+    const validated = validateTrackByDateInput(input);
+    const payload = buildTrackByDatePayload(this.config, validated);
+    const raw = await this.transport.call(SOAP_OPERATIONS.trackByDate, payload);
     return parseTrackByDateResponse(raw);
   }
 
   /**
    * Cancel an open authorization (SOAP: cancelarPedido).
    *
-   * @param input.numeroPedido — `numeroColeta` from issueAuthorization
+   * @throws {CorreiosValidationError} when input fails Zod validation
    */
   async cancelOrder(input: CancelOrderInput): Promise<CancelOrderResult> {
-    const payload = buildCancelOrderPayload(this.config, input);
-    const raw = await this.transport.call('cancelarPedido', payload);
+    const validated = validateCancelOrderInput(input);
+    const payload = buildCancelOrderPayload(this.config, validated);
+    const raw = await this.transport.call(SOAP_OPERATIONS.cancelOrder, payload);
     return parseCancelOrderResponse(raw);
   }
 }

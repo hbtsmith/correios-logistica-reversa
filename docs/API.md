@@ -314,7 +314,10 @@ Use `raw` for fields not yet mapped to typed interfaces.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `objetoPostal` | `unknown` | Cancel confirmation object |
+| `objetoPostal` | `CancelOrderPayload` | Parsed cancel envelope (`codigo_administrativo`, nested `objeto_postal`) |
+| `numeroPedido` | `string?` | Convenience — from `objeto_postal.numero_pedido` |
+| `statusPedido` | `string?` | Convenience — from `objeto_postal.status_pedido` |
+| `datahoraCancelamento` | `string?` | Convenience — from `objeto_postal.datahora_cancelamento` |
 | `raw` | `unknown` | Full SOAP response |
 
 **Production success example (validated):**
@@ -334,21 +337,63 @@ Use `raw` for fields not yet mapped to typed interfaces.
 
 ---
 
-## 6. Errors
+## 6. Input validation
+
+All client methods validate inputs with **Zod** before SOAP calls. Invalid input throws `CorreiosValidationError` with `code: VALIDATION_FAILED` and a human-readable message.
+
+```ts
+import { CorreiosValidationError, VALIDATION_ERROR_CODES } from 'correios-logistica-reversa';
+
+try {
+  await client.issueAuthorization({ destinatario: { /* missing fields */ }, coleta: { ag: 5, remetente } });
+} catch (error) {
+  if (error instanceof CorreiosValidationError) {
+    console.log(error.code); // 'VALIDATION_FAILED'
+  }
+}
+```
+
+---
+
+## 7. Errors
 
 | Class | When |
 |-------|------|
 | `CorreiosConfigError` | Missing/invalid config or env vars |
-| `CorreiosValidationError` | Input validation (reserved) |
+| `CorreiosValidationError` | Zod input validation failed (`VALIDATION_FAILED`) |
 | `CorreiosResponseError` | Unparseable SOAP response shape |
-| `CorreiosTransportError` | WSDL/SOAP network failure |
+| `CorreiosTransportError` | WSDL/SOAP network failure (see `TRANSPORT_ERROR_CODES`) |
 | `CorreiosError` | Base class — `code?`, `raw?`, `cause?` |
 
-**Important:** Correios **business errors** (e.g. code `109`) are usually returned **inside** `IssueAuthorizationResult.codigoErro` — not thrown. Only transport/parsing failures throw.
+### Transport error codes (`TRANSPORT_ERROR_CODES`)
+
+| Code | When |
+|------|------|
+| `WSDL_UNAUTHORIZED` | WSDL fetch returned 401 |
+| `WSDL_CREATE_FAILED` | WSDL client creation failed (other) |
+| `SOAP_METHOD_UNAVAILABLE` | Method missing on WSDL client |
+| `SOAP_FAULT` | SOAP fault / unmarshalling error |
+| `SOAP_CALL_FAILED` | Other SOAP callback error |
+
+### Result helpers
+
+```ts
+import { isIssueSuccess, isCorreiosBusinessError } from 'correios-logistica-reversa';
+
+const result = await client.issueAuthorization(input);
+if (isIssueSuccess(result)) {
+  console.log(result.numeroColeta); // narrowed to string
+}
+if (isCorreiosBusinessError(result)) {
+  console.log(result.codigoErro, result.descricaoErro);
+}
+```
+
+**Important:** Correios **business errors** (e.g. code `109`) are usually returned **inside** `IssueAuthorizationResult.codigoErro` — not thrown. Only transport/parsing/validation failures throw.
 
 ---
 
-## 7. `Party` fields (remetente / destinatario)
+## 8. `Party` fields (remetente / destinatario)
 
 | Field | Required | Notes |
 |-------|----------|-------|
@@ -369,7 +414,7 @@ Use `raw` for fields not yet mapped to typed interfaces.
 
 ---
 
-## 8. Runnable examples
+## 9. Runnable examples
 
 | Script | Purpose |
 |--------|---------|
@@ -385,7 +430,7 @@ npx tsx examples/live-cancel-scenario.ts 4638012880
 
 ---
 
-## 9. Typical integration flow
+## 10. Typical integration flow
 
 ```
 1. Load config (env or secret manager)
@@ -397,7 +442,7 @@ npx tsx examples/live-cancel-scenario.ts 4638012880
 
 ---
 
-## 10. Exports reference
+## 11. Exports reference
 
 ```ts
 // Client
@@ -412,6 +457,15 @@ getWsdlUrl(config: CorreiosConfig)
 // Errors
 CorreiosError, CorreiosConfigError, CorreiosValidationError,
 CorreiosResponseError, CorreiosTransportError
+TRANSPORT_ERROR_CODES, VALIDATION_ERROR_CODES
+
+// Helpers
+isIssueSuccess(result)
+isCorreiosBusinessError(result)
+
+// SOAP
+SOAP_OPERATIONS   // { ISSUE_AUTHORIZATION, TRACK_BY_ORDER, ... }
+SoapTransport       // injectable transport interface
 
 // Constants
 WSDL_LOGISTICA_REVERSA_PRODUCTION
@@ -420,9 +474,9 @@ SERVICE_CODE_PAC_REVERSO   // '04677'
 SERVICE_CODE_SEDEX_REVERSO // '04170'
 DEFAULT_TIMEOUT_MS         // 180000
 
-// Types (all interfaces in section 5–7)
+// Types (all interfaces in sections 5–8)
 ```
 
 ---
 
-*Last updated: 2026-06-25 — validated against production emit + cancel (authorization 4638012880).*
+*Last updated: 2026-06-25 — v1.0.0 P0: validation, typed cancel, transport codes, result helpers.*

@@ -84,12 +84,40 @@ export interface IssueAuthorizationResult {
   raw: unknown;
 }
 
+/** Known fields on Correios cancel confirmation (objeto_postal). */
+export interface CancelPostalObject {
+  numero_pedido?: string;
+  status_pedido?: string;
+  datahora_cancelamento?: string;
+}
+
+/** Parsed cancel envelope from Correios SOAP. */
+export interface CancelOrderPayload {
+  codigo_administrativo?: string;
+  objeto_postal?: CancelPostalObject;
+  [key: string]: unknown;
+}
+
+/** Known fields on tracked collection entries (shape varies by Correios version). */
+export interface TrackColetaEntry {
+  numero_pedido?: string;
+  status_objeto?: string;
+  prazo?: string;
+  [key: string]: unknown;
+}
+
 export interface TrackResult {
-  coleta: unknown;
+  coleta: TrackColetaEntry | TrackColetaEntry[];
   raw: unknown;
 }
 
 export interface CancelOrderResult {
-  objetoPostal: unknown;
+  objetoPostal: CancelOrderPayload;
+  /** Convenience — from objeto_postal.numero_pedido */
+  numeroPedido?: string;
+  /** Convenience — from objeto_postal.status_pedido */
+  statusPedido?: string;
+  /** Convenience — from objeto_postal.datahora_cancelamento */
+  datahoraCancelamento?: string;
   raw: unknown;
 }

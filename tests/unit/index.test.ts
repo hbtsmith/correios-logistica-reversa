@@ -13,5 +13,8 @@ describe('public package exports', () => {
     expect(pkg.WSDL_LOGISTICA_REVERSA_HOMOLOGATION).toContain('https://');
     expect(pkg.SERVICE_CODE_PAC_REVERSO).toBe('04677');
     expect(pkg.DEFAULT_TIMEOUT_MS).toBeGreaterThan(0);
+    expect(pkg.isIssueSuccess).toBeTypeOf('function');
+    expect(pkg.TRANSPORT_ERROR_CODES.WSDL_UNAUTHORIZED).toBe('WSDL_UNAUTHORIZED');
+    expect(pkg.SOAP_OPERATIONS.issueAuthorization).toBe('solicitarPostagemReversa');
   });
 });

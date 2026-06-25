@@ -5,7 +5,7 @@ vi.mock('../../src/soap/create-client.js', () => ({
 }));
 
 import { createSoapClient } from '../../src/soap/create-client.js';
-import { CorreiosTransportError } from '../../src/errors.js';
+import { CorreiosTransportError, TRANSPORT_ERROR_CODES } from '../../src/errors.js';
 import { NodeSoapTransport } from '../../src/soap/transport.js';
 import type { CorreiosConfig } from '../../src/types/index.js';
 
@@ -45,6 +45,7 @@ describe('NodeSoapTransport', () => {
 
     await expect(transport.call('unknownMethod', {})).rejects.toMatchObject({
       name: 'CorreiosTransportError',
+      code: TRANSPORT_ERROR_CODES.SOAP_METHOD_UNAVAILABLE,
       message: expect.stringContaining('unknownMethod'),
     });
   });
@@ -59,6 +60,36 @@ describe('NodeSoapTransport', () => {
 
     await expect(transport.call('acompanharPedido', {})).rejects.toBeInstanceOf(CorreiosTransportError);
     await expect(transport.call('acompanharPedido', {})).rejects.toThrow(/timeout/);
+  });
+
+  it('classifies SOAP callback errors as SOAP_FAULT', async () => {
+    const soapMethod = vi.fn((_args: Record<string, unknown>, cb: (err: Error | null, res: unknown) => void) => {
+      cb(new Error('soap:Client: Unmarshalling Error: unexpected element'), null);
+    });
+    vi.mocked(createSoapClient).mockResolvedValue({ acompanharPedido: soapMethod });
+
+    const transport = new NodeSoapTransport(config);
+
+    await expect(transport.call('acompanharPedido', {})).rejects.toMatchObject({
+      code: TRANSPORT_ERROR_CODES.SOAP_FAULT,
+    });
+  });
+
+  it('resets cached client after WSDL creation failure', async () => {
+    vi.mocked(createSoapClient)
+      .mockRejectedValueOnce(
+        new CorreiosTransportError('Failed to create SOAP client: 401 Unauthorized', {
+          code: TRANSPORT_ERROR_CODES.WSDL_UNAUTHORIZED,
+        }),
+      )
+      .mockResolvedValueOnce({ cancelarPedido: vi.fn((_a, cb) => cb(null, {})) });
+
+    const transport = new NodeSoapTransport(config);
+
+    await expect(transport.call('cancelarPedido', {})).rejects.toThrow(CorreiosTransportError);
+    await expect(transport.call('cancelarPedido', {})).resolves.toEqual({});
+
+    expect(createSoapClient).toHaveBeenCalledTimes(2);
   });
 
   it('reuses the same SOAP client across calls', async () => {

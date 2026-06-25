@@ -9,7 +9,16 @@ export {
   CorreiosValidationError,
   CorreiosResponseError,
   CorreiosTransportError,
+  TRANSPORT_ERROR_CODES,
+  VALIDATION_ERROR_CODES,
 } from './errors.js';
+export type { TransportErrorCode } from './errors.js';
+
+export { isIssueSuccess, isCorreiosBusinessError } from './result-helpers.js';
+
+export { SOAP_OPERATIONS } from './soap/operations.js';
+export type { SoapOperation } from './soap/operations.js';
+export type { SoapTransport } from './soap/transport.js';
 
 export {
   WSDL_LOGISTICA_REVERSA_PRODUCTION,
@@ -31,5 +40,8 @@ export type {
   TrackByDateInput,
   CancelOrderInput,
   TrackResult,
+  TrackColetaEntry,
   CancelOrderResult,
+  CancelOrderPayload,
+  CancelPostalObject,
 } from './types/index.js';
